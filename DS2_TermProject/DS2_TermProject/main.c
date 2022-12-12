@@ -30,37 +30,32 @@ int chart_num = 0;  // 수강신청한 과목 개수
 int sum = 0;		// 선택한 과목 총 학점
 
 // ------------------------------------------------------------ stack ------------------------------------------------------------
-typedef struct StackNode {
-	subjectNode* node;
-	struct StackNode* link;
-}StackNode;
-
 typedef struct stackType {
-	StackNode* top;
+	subjectNode* stack[MAX];
+	int top;
 }stackType;
 
 void init(stackType* s) {
-	s->top = NULL;
+	s->top = -1;
 }
 
-subjectNode* is_empty(stackType* s) {
-	return (s->top == NULL);
+int is_empty(stackType* s) {
+	return (s->top == -1);
+}
+
+int is_full(stackType* s) {
+	return (s->top == MAX - 1);
 }
 
 void push(stackType* s, subjectNode* node) {
-	StackNode* tmp = (StackNode*)malloc(sizeof(StackNode));
-	tmp->node = node;
-	tmp->link = s->top;
-	s->top = tmp;
+	if (!is_full(s))
+		s->stack[++(s->top)] = node;
 }
 
 subjectNode* pop(stackType* s) {
 	if (is_empty(s)) {
-		fprintf(stderr, "스택이 비어있음\n");
-		return NULL;
+		return s->stack[(s->top)--];
 	}
-	else
-		return s->top;
 }
 
 // ------------------------------------------------------------ 함수 ------------------------------------------------------------
@@ -70,7 +65,7 @@ void create_subject(subjectType* g, int index, int grade, int semester,
 	subjectNode* node = (subjectNode*)malloc(sizeof(subjectNode));
 	node->grade = grade;
 	node->semester = semester;
-	memset(node->name, name, sizeof(char));
+	strcpy(node->name, name);
 	node->time.start_time[0] = start_time1;
 	node->time.start_time[1] = start_time2;
 	node->time.finish_time[0] = finish_time1;
@@ -82,28 +77,39 @@ void create_subject(subjectType* g, int index, int grade, int semester,
 	g->list[index] = node;
 }
 
+
 // 역 정렬
-subjectType* reverse_sort(subjectType* sub) {
-	subjectType* r = (subjectType*)malloc(sizeof(subjectType));  // 역 인접 리스트 생성
+subjectType* reverse_sort(subjectType* sub, subjectType* r) {
 
 	for (int i = 0; i < 39; i++) {
 		stackType s;  // 스택
 		init(&s);
 
-		subjectNode* node = sub->list[i]->link;  // 임시 리스트
+		// 리스트의 i번째 노드
+		subjectNode* node = sub->list[i];
 
-		while (node != NULL) {
+		// 스택에 리스트 한줄 넣기
+		do{
+			node = node->link;
+			printf("11%s11 \n", node->name);
 			push(&s, node);
 			if (node->link == NULL)
 				break;
-			node = node->link;
-			printf("프린트");
-		}
-
+			printf("프린트\n");
+		} while (node->link != NULL);
+		
+		// 스택에 해당하는 위치에 i번째 node 넣기
+		int j = 0;
 		while (!is_empty(&s)) {
-			subjectNode* node1 = pop(&s);
-			node1->link = r->list[i];
-			r->list[i] = node1;
+			printf("22%s %s \n", r->list[j]->name, node->name);
+			// if 조건 오류
+			if(strncmp(r->list[j]->name, node->name, sizeof(node->name)) == 0) {
+				subjectNode* node1 = pop(&s);
+				node->link = r->list[j];
+				r->list[j++] = node;
+				printf("삽입");
+			}
+			printf("비교 실패");
 		}
 	}
 	return r;
@@ -259,9 +265,10 @@ void search() {
 }
 
 int main() {
+	subjectType* l = (subjectType*)malloc(sizeof(subjectType));
 	subjectType* s = (subjectType*)malloc(sizeof(subjectType)); // 후 선수
 	subjectType* r = (subjectType*)malloc(sizeof(subjectType)); // 선 선수
-	s->n = 39; r->n = 39;
+	s->n = 39;
 	// 후 선수 리스트에 과목 세팅 (전공필수과목: ** / 전공핵심과목: *)
 	{
 		// create_subject(s, 번호, 학년, 학기, 이름, 요일1시작시간, 요일2시작시간, 요일1종료시간, 요일2종료시간, 요일1, 요일2)
@@ -307,13 +314,15 @@ int main() {
 		create_subject(s, 38, 4, 2, "고급 웹 응용 프로그래밍", 0, 0, 0, 0, 0, 0);
 		printf("create subject clear\n");
 	}
+	
+	r = s; l = s;
 
 	// 후 선수 리스트에 과목 연결
 	{
-		s->list[0]->link = s->list[5];
-		printf("clear\n");
+		s->list[0]->link = l->list[5];
 		s->list[0]->link->link = NULL;
-		s->list[1]->link = s->list[5];
+		printf("clear\n");
+		s->list[1]->link = l->list[5];
 		s->list[1]->link->link = NULL;
 		s->list[2]->link = s->list[5]; s->list[2]->link->link = s->list[6];
 		s->list[2]->link->link->link = NULL;
@@ -378,7 +387,7 @@ int main() {
 	}
 
 	// 선 선수 리스트 생성
-	r = reverse_sort(s);
+	r = reverse_sort(s, r);
 
 	return 0;
 }
