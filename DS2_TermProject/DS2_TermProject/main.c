@@ -5,9 +5,9 @@
 #define MAX 100
 
 typedef struct Time {
-	int start_time;
-	int finish_time;
-	int week;
+	int start_time[2];
+	int finish_time[2];
+	int week[2];
 }Time;
 
 typedef struct subjectNode {
@@ -24,13 +24,12 @@ typedef struct subjectType {
 	subjectNode* list[MAX];
 }subjectType;
 
-subjectNode* chart[12] = { 0 };
-char schedule[20][5] = { 0, };
-int chart_num = 0;  // 시간표에 넣은 과목 개수
+subjectNode* chart[12] = { 0 }; // 수강신청한 과목
+char schedule[20][5] = { 0, }; // 시각적 시간표
+int chart_num = 0;  // 수강신청한 과목 개수
 int sum = 0;		// 선택한 과목 총 학점
 
-// -------------------- stack --------------------
-
+// ------------------------------------------------------------ stack ------------------------------------------------------------
 typedef struct StackNode {
 	subjectNode* node;
 	struct StackNode* link;
@@ -64,17 +63,20 @@ subjectNode* pop(stackType* s) {
 		return s->top;
 }
 
-// -------------------- 함수 --------------------
-
+// ------------------------------------------------------------ 함수 ------------------------------------------------------------
 // 노드 생성
-void create_subject(subjectType* g, int index, int grade, int semester, char name[], int start_time, int finish_time, int week) {
+void create_subject(subjectType* g, int index, int grade, int semester, 
+	char name[], int start_time1, int start_time2, int finish_time1, int finish_time2, int week1, int week2) {
 	subjectNode* node = (subjectNode*)malloc(sizeof(subjectNode));
 	node->grade = grade;
 	node->semester = semester;
 	memset(node->name, name, sizeof(char));
-	node->time.start_time = start_time;
-	node->time.finish_time = finish_time;
-	node->time.week = week;
+	node->time.start_time[0] = start_time1;
+	node->time.start_time[1] = start_time2;
+	node->time.finish_time[0] = finish_time1;
+	node->time.finish_time[1] = finish_time2;
+	node->time.week[0] = week1;
+	node->time.week[1] = week2;
 	node->link = NULL;
 	node->link = g->list[index];
 	g->list[index] = node;
@@ -94,8 +96,8 @@ subjectType* reverse_sort(subjectType* sub) {
 			push(&s, node);
 			if (node->link == NULL)
 				break;
-			subjectNode* tmp = node->link;
-			node = tmp;
+			node = node->link;
+			printf("프린트");
 		}
 
 		while (!is_empty(&s)) {
@@ -162,8 +164,11 @@ int* search_grade_semester(int grade, int semester, subjectType* pList) {
 
 // 시간표 삽입
 void insert_schedule(subjectNode subject) {
-	for (int i = subject.time.start_time; i < subject.time.finish_time; i++)
-		schedule[i][subject.time.week] = '■';
+	for (int i = subject.time.start_time[0]; i < subject.time.finish_time[0]; i++)
+		schedule[i][subject.time.week[0]] = '■';
+
+	for (int i = subject.time.start_time[1]; i < subject.time.finish_time[1]; i++)
+		schedule[i][subject.time.week[1]] = '■';
 
 	sum += subject.score;
 }
@@ -259,47 +264,47 @@ int main() {
 	s->n = 39; r->n = 39;
 	// 후 선수 리스트에 과목 세팅 (전공필수과목: ** / 전공핵심과목: *)
 	{
-		//create_subject(s, 번호, 학년, 학기, 이름, 시작시간, 끝나는 시간, 요일)
-		create_subject(s, 0, 1, 1, "**공학설계입문**", 0, 0, 0);
-		printf("clear\n");
-		create_subject(s, 1, 1, 1, "**프로그래밍 기초1**", 0, 0, 0);
-		create_subject(s, 2, 1, 1, "컴퓨팅 이해", 0, 0, 0);
-		create_subject(s, 3, 1, 1, "컴퓨터 영어1", 0, 0, 0);
-		create_subject(s, 4, 1, 2, "**전산수학**", 0, 0, 0);
-		create_subject(s, 5, 1, 2, "프로그래밍 기초2", 0, 0, 0);
-		create_subject(s, 6, 1, 2, "**C프로그래밍**", 0, 0, 0);
-		create_subject(s, 7, 1, 2, "컴퓨터 영어2", 0, 0, 0);
-		create_subject(s, 8, 2, 1, "**선형대수**", 0, 0, 0);
-		create_subject(s, 9, 2, 1, "**디지털 로직**", 0, 0, 0);
-		create_subject(s, 10, 2, 1, "**데이터 구조1**", 0, 0, 0);
-		create_subject(s, 11, 2, 1, "JAVA 프로그래밍", 0, 0, 0);
-		create_subject(s, 12, 2, 1, "C 프로그래밍", 0, 0, 0);
-		create_subject(s, 13, 2, 2, "**확률 및 통계**", 0, 0, 0);
-		create_subject(s, 14, 2, 2, "기초 전자회로", 0, 0, 0);
-		create_subject(s, 15, 2, 2, "**컴퓨터 구조**", 0, 0, 0);
-		create_subject(s, 16, 2, 2, "**데이터 구조2**", 0, 0, 0);
-		create_subject(s, 17, 2, 2, "객체지향 프로그래밍", 0, 0, 0);
-		create_subject(s, 18, 2, 2, "웹 프로그래밍", 0, 0, 0);
-		create_subject(s, 19, 3, 1, "*운영체제*", 0, 0, 0);
-		create_subject(s, 20, 3, 1, "컴퓨터그래픽스", 0, 0, 0);
-		create_subject(s, 21, 3, 1, "파일처리", 0, 0, 0);
-		create_subject(s, 22, 3, 1, "*프로그래밍 언어론*", 0, 0, 0);
-		create_subject(s, 23, 3, 1, "윈도우즈 프로그래밍", 0, 0, 0);
-		create_subject(s, 24, 3, 1, "JAVA 응용 프로그래밍", 0, 0, 0);
-		create_subject(s, 25, 3, 2, "*마이크로 프로세서*", 0, 0, 0);
-		create_subject(s, 26, 3, 2, "*컴퓨터 네트워크*", 0, 0, 0);
-		create_subject(s, 27, 3, 2, "인공지능", 0, 0, 0);
-		create_subject(s, 28, 3, 2, "*데이터 베이스*", 0, 0, 0);
-		create_subject(s, 29, 3, 2, "컴파일러", 0, 0, 0);
-		create_subject(s, 30, 3, 2, "*소프트웨어공학*", 0, 0, 0);
-		create_subject(s, 31, 4, 1, "현대암호 및 응용", 0, 0, 0);
-		create_subject(s, 32, 4, 1, "임베디드 소프트웨어", 0, 0, 0);
-		create_subject(s, 33, 4, 1, "빅데이터 이해", 0, 0, 0);
-		create_subject(s, 34, 4, 1, "스마트폰 응용 프로그래밍", 0, 0, 0);
-		create_subject(s, 35, 4, 1, "알고리즘 응용", 0, 0, 0);
-		create_subject(s, 36, 4, 2, "리눅스 프로그래밍", 0, 0, 0);
-		create_subject(s, 37, 4, 2, "딥러닝 이해", 0, 0, 0);
-		create_subject(s, 38, 4, 2, "고급 웹 응용 프로그래밍", 0, 0, 0);
+		// create_subject(s, 번호, 학년, 학기, 이름, 요일1시작시간, 요일2시작시간, 요일1종료시간, 요일2종료시간, 요일1, 요일2)
+		// 요일2가 없으면 NULL 처리
+		create_subject(s, 0, 1, 1, "**공학설계입문**", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 1, 1, 1, "**프로그래밍 기초1**", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 2, 1, 1, "컴퓨팅 이해", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 3, 1, 1, "컴퓨터 영어1", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 4, 1, 2, "**전산수학**", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 5, 1, 2, "프로그래밍 기초2", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 6, 1, 2, "**C프로그래밍**", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 7, 1, 2, "컴퓨터 영어2", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 8, 2, 1, "**선형대수**", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 9, 2, 1, "**디지털 로직**", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 10, 2, 1, "**데이터 구조1**", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 11, 2, 1, "JAVA 프로그래밍", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 12, 2, 1, "C 프로그래밍", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 13, 2, 2, "**확률 및 통계**", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 14, 2, 2, "기초 전자회로", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 15, 2, 2, "**컴퓨터 구조**", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 16, 2, 2, "**데이터 구조2**", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 17, 2, 2, "객체지향 프로그래밍", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 18, 2, 2, "웹 프로그래밍", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 19, 3, 1, "*운영체제*", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 20, 3, 1, "컴퓨터그래픽스", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 21, 3, 1, "파일처리", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 22, 3, 1, "*프로그래밍 언어론*", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 23, 3, 1, "윈도우즈 프로그래밍", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 24, 3, 1, "JAVA 응용 프로그래밍", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 25, 3, 2, "*마이크로 프로세서*", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 26, 3, 2, "*컴퓨터 네트워크*", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 27, 3, 2, "인공지능", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 28, 3, 2, "*데이터 베이스*", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 29, 3, 2, "컴파일러", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 30, 3, 2, "*소프트웨어공학*", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 31, 4, 1, "현대암호 및 응용", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 32, 4, 1, "임베디드 소프트웨어", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 33, 4, 1, "빅데이터 이해", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 34, 4, 1, "스마트폰 응용 프로그래밍", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 35, 4, 1, "알고리즘 응용", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 36, 4, 2, "리눅스 프로그래밍", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 37, 4, 2, "딥러닝 이해", 0, 0, 0, 0, 0, 0);
+		create_subject(s, 38, 4, 2, "고급 웹 응용 프로그래밍", 0, 0, 0, 0, 0, 0);
 		printf("create subject clear\n");
 	}
 
@@ -374,7 +379,6 @@ int main() {
 
 	// 선 선수 리스트 생성
 	r = reverse_sort(s);
-
 
 	return 0;
 }
