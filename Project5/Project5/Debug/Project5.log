@@ -1,0 +1,13 @@
+﻿  test.c
+c:\users\김규헌\source\repos\project5\project5\test.c(15): warning C4102: 'case1': 참조되지 않은 레이블입니다.
+c:\users\김규헌\source\repos\project5\project5\test.c(17): warning C4102: 'case2': 참조되지 않은 레이블입니다.
+c:\users\김규헌\source\repos\project5\project5\test.c(32): warning C4102: 'case1': 참조되지 않은 레이블입니다.
+c:\users\김규헌\source\repos\project5\project5\test.c(44): warning C4013: 'gets'이(가) 정의되지 않았습니다. extern은 int형을 반환하는 것으로 간주합니다.
+  소스.cpp
+c:\users\김규헌\source\repos\project5\project5\소스.cpp(158): warning C4305: '=': 'int'에서 'char'(으)로 잘립니다.
+c:\users\김규헌\source\repos\project5\project5\소스.cpp(158): warning C4309: '=': 상수 값이 잘립니다.
+c:\users\김규헌\source\repos\project5\project5\소스.cpp(57): warning C4715: 'pop': 모든 제어 경로에서 값을 반환하지는 않습니다.
+c:\users\김규헌\source\repos\project5\project5\소스.cpp(152): warning C4172: 지역 변수 또는 임시: index의 주소를 반환하고 있습니다.
+  LINK : C:\Users\김규헌\source\repos\Project5\Debug\Project5.exe을(를) 찾을 수 없거나 마지막 증분 링크에 의해 빌드되지 않았습니다. 전체 링크를 수행하고 있습니다.
+소스.obj : error LNK2005: _main이(가) test.obj에 이미 정의되어 있습니다.
+C:\Users\김규헌\source\repos\Project5\Debug\Project5.exe : fatal error LNK1169: 여러 번 정의된 기호가 있습니다.
